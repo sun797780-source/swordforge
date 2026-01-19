@@ -7,11 +7,7 @@ COPY package.json ./
 COPY prisma ./prisma/
 
 # 安装依赖（包括 devDependencies，因为需要 prisma CLI）
-# 使用 --legacy-peer-deps 避免依赖冲突
-RUN npm install --include=dev --legacy-peer-deps
-
-# 生成 Prisma Client
-RUN npx prisma generate
+RUN npm install --include=dev
 
 # 复制源代码
 COPY . .
@@ -19,8 +15,8 @@ COPY . .
 # 暴露端口
 EXPOSE 3001
 
-# 启动
-CMD ["npm", "start"]
+# 启动时生成 Prisma Client 并启动服务
+CMD ["sh", "-c", "npx prisma generate && npm start"]
 
 
 
