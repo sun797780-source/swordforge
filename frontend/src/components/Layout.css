@@ -1,0 +1,212 @@
+.layout {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== 导航栏 ===== */
+.navbar {
+    height: 72px;
+    background: linear-gradient(180deg, rgba(26, 29, 35, 0.98), rgba(26, 29, 35, 0.95));
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.navbar-brand h1 {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, var(--primary-gold), #e8d5a3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.navbar-brand .subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    border-left: 1px solid var(--border-color);
+    padding-left: 1.25rem;
+    font-weight: 400;
+}
+
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-menu a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.25s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
+    position: relative;
+    letter-spacing: 0.02em;
+}
+
+.navbar-menu a:hover {
+    color: var(--text-primary);
+    background: rgba(201, 165, 92, 0.08);
+}
+
+.navbar-menu a.active {
+    color: var(--primary-gold);
+    background: rgba(201, 165, 92, 0.12);
+}
+
+.navbar-menu a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    background: var(--primary-gold);
+    border-radius: 1px;
+}
+
+.navbar-link-disabled {
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: not-allowed;
+    opacity: 0.5;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+}
+
+.navbar-link-disabled:hover {
+    opacity: 0.7;
+    background: rgba(255, 77, 79, 0.08);
+}
+
+/* ===== 主内容区 ===== */
+.main-content {
+    flex: 1;
+    width: 100%;
+}
+
+/* ===== 页脚 ===== */
+.footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 3rem;
+    margin-top: auto;
+}
+
+.footer-content {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+}
+
+.footer-brand h3 {
+    font-family: var(--font-display);
+    color: var(--primary-gold);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.footer-brand p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+}
+
+.footer-section h4 {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-section a {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    transition: color 0.2s;
+}
+
+.footer-section a:hover {
+    color: var(--primary-gold);
+}
+
+.footer-bottom {
+    max-width: var(--container-width);
+    margin: 2rem auto 0;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-light);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 992px) {
+    .navbar {
+        padding: 0 1.5rem;
+    }
+
+    .navbar-brand .subtitle {
+        display: none;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        height: 60px;
+    }
+
+    .navbar-brand h1 {
+        font-size: 1.3rem;
+    }
+
+    .navbar-menu a {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+}

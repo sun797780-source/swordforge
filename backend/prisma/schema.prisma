@@ -1,0 +1,460 @@
+// 铸剑乾坤 - 数据库模型定义
+// 使用 SQLite 数据库
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./swordforge.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// 用户与权限管理
+// ==========================================
+
+model User {
+  id            String   @id @default(uuid())
+  username      String   @unique
+  password      String   // 加密存储
+  name          String
+  email         String?  @unique
+  phone         String?
+  avatar        String?
+  role          String   @default("USER") // SUPER_ADMIN, ADMIN, ENGINEER, VIEWER, USER
+  department    String?
+  position      String?
+  isActive      Boolean  @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // 关联
+  annotations        Annotation[]
+  versions           Version[]
+  syncRecords        SyncRecord[]
+  projects           ProjectMember[]
+  gjbChecks          GJBCheckResult[]
+  ideas              Idea[]
+  loginLogs          LoginLog[]
+  sessions           Session[]
+  apiKeys            ApiKey[]
+  auditLogs          AuditLog[]
+  aiDesigns          AIDesign[]
+  collaborationSessions CollaborationSession[]
+  annotationHistories   AnnotationHistory[]
+  chatMessages       ChatMessage[]
+}
+
+// SQLite 不支持 enum，使用 String 类型
+// Role 值: SUPER_ADMIN, ADMIN, ENGINEER, VIEWER, USER
+
+model Permission {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  role         String     // SUPER_ADMIN, ADMIN, ENGINEER, VIEWER, USER
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  createdAt    DateTime   @default(now())
+
+  @@unique([role, permissionId], name: "role_permission")
+}
+
+model LoginLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  ip        String?
+  userAgent String?
+  success   Boolean
+  message   String?
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  token        String   @unique
+  refreshToken String   @unique
+  ip           String?
+  userAgent    String?
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ApiKey {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  keyHash     String   @unique
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  revokedAt   DateTime?
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorId     String?
+  actor       User?    @relation(fields: [actorId], references: [id])
+  action      String
+  targetType  String?
+  targetId    String?
+  payload     String?  // JSON字符串
+  ip          String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+}
+
+// ==========================================
+// 协同项目管理
+// ==========================================
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  modelType   String   // tank, drone, armor, exoskeleton
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  members          ProjectMember[]
+  annotations      Annotation[]
+  versions         Version[]
+  parts            Part[]
+  gjbResults       GJBCheckResult[]
+  syncRecords      SyncRecord[]
+  rooms            CollaborationRoom[]
+  monitoring       MonitoringRecord[]
+  disassemblyState DisassemblyState?
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  role      String   @default("member") // owner, admin, member, viewer
+  joinedAt  DateTime @default(now())
+
+  @@unique([projectId, userId])
+}
+
+model CollaborationRoom {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  name        String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sessions    CollaborationSession[]
+  messages    ChatMessage[]
+}
+
+model CollaborationSession {
+  id        String   @id @default(uuid())
+  roomId    String
+  room      CollaborationRoom @relation(fields: [roomId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  joinedAt  DateTime @default(now())
+  leftAt    DateTime?
+  status    String   @default("online") // online, idle, offline
+  metadata  String?  // JSON
+
+  @@index([roomId])
+  @@index([userId])
+}
+
+// ==========================================
+// 3D标注系统
+// ==========================================
+
+model Annotation {
+  id         String   @id @default(uuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  partId     String?
+  positionX  Float    @default(0)
+  positionY  Float    @default(0)
+  positionZ  Float    @default(0)
+  content    String
+  type       String   @default("info") // info, warning, error, success
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  resolved   Boolean  @default(false)
+  resolvedAt DateTime?
+  resolvedBy String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  history    AnnotationHistory[]
+}
+
+model AnnotationHistory {
+  id            String   @id @default(uuid())
+  annotationId  String
+  annotation    Annotation @relation(fields: [annotationId], references: [id])
+  operatorId    String?
+  operator      User?    @relation(fields: [operatorId], references: [id])
+  action        String   // create, update, resolve, delete
+  before        String?  // JSON
+  after         String?  // JSON
+  createdAt     DateTime @default(now())
+}
+
+// ==========================================
+// 部件管理
+// ==========================================
+
+model Part {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  name      String
+  parentId  String?
+  visible   Boolean  @default(true)
+  positionX Float    @default(0)
+  positionY Float    @default(0)
+  positionZ Float    @default(0)
+  metadata  String?  // JSON格式存储额外数据
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  disassembly DisassemblyPartState[]
+
+  @@index([projectId])
+}
+
+model DisassemblyState {
+  id           String   @id @default(uuid())
+  projectId    String   @unique
+  project      Project  @relation(fields: [projectId], references: [id])
+  explodeLevel Int      @default(0)
+  updatedAt    DateTime @updatedAt
+}
+
+model DisassemblyPartState {
+  id        String   @id @default(uuid())
+  projectId String
+  partId    String
+  part      Part     @relation(fields: [partId], references: [id])
+  visible   Boolean  @default(true)
+  exploded  Boolean  @default(false)
+  offsetX   Float    @default(0)
+  offsetY   Float    @default(0)
+  offsetZ   Float    @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@unique([projectId, partId])
+}
+
+// ==========================================
+// 版本控制
+// ==========================================
+
+model Version {
+  id            String   @id @default(uuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  version       String
+  branch        String   @default("main")
+  commitMessage String
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
+  changes       String?  // JSON格式存储变更列表
+  parentId      String?
+  isRollback    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([projectId])
+}
+
+// ==========================================
+// GJB合规检查
+// ==========================================
+
+model GJBRule {
+  id          String   @id @default(uuid())
+  ruleCode    String   @unique
+  name        String
+  category    String
+  description String?
+  standard    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  results GJBCheckResult[]
+}
+
+model GJBCheckResult {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  ruleId      String
+  rule        GJBRule  @relation(fields: [ruleId], references: [id])
+  status      String   // passed, warning, failed
+  score       Int
+  details     String?
+  suggestions String?  // JSON格式存储建议列表
+  checkedById String?
+  checkedBy   User?    @relation(fields: [checkedById], references: [id])
+  checkedAt   DateTime @default(now())
+
+  @@index([projectId])
+}
+
+// ==========================================
+// 云同步记录
+// ==========================================
+
+model SyncRecord {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  type      String   // upload, download
+  status    String   // pending, uploading, downloading, completed, failed
+  fileName  String
+  fileSize  Int
+  progress  Int      @default(0)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  startedAt DateTime @default(now())
+  syncedAt  DateTime?
+
+  @@index([projectId])
+}
+
+model MonitoringRecord {
+  id                 String   @id @default(uuid())
+  projectId          String
+  project            Project  @relation(fields: [projectId], references: [id])
+  structuralStress   Float
+  thermalLoad        Float
+  collaborationDelay Float
+  powerOutput        Float
+  systemEfficiency   Float
+  vibrationAmplitude Float
+  systemPressure     Float
+  coolingFlow        Float
+  createdAt          DateTime @default(now())
+
+  @@index([projectId])
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  roomId    String
+  room      CollaborationRoom @relation(fields: [roomId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  type      String   @default("text") // text, system, file
+  createdAt DateTime @default(now())
+
+  @@index([roomId])
+  @@index([userId])
+}
+
+// ==========================================
+// 装备数据
+// ==========================================
+
+model Equipment {
+  id           String   @id @default(uuid())
+  name         String
+  type         String   // LIGHT_WEAPON, ARMORED_VEHICLE, AIRCRAFT, etc.
+  year         Int
+  manufacturer String?
+  description  String?
+  specs        String?  // JSON格式存储规格参数
+  images       String?  // JSON格式存储图片URL列表
+  modelUrl     String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ==========================================
+// 历史事件
+// ==========================================
+
+model HistoryEvent {
+  id          String   @id @default(uuid())
+  title       String
+  year        Int
+  month       Int?
+  day         Int?
+  description String?
+  location    String?
+  importance  Int      @default(3) // 1-5
+  images      String?  // JSON格式存储图片URL列表
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// 创意建议
+// ==========================================
+
+model Idea {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  category  String
+  status    String   @default("pending") // pending, reviewing, approved, rejected
+  votes     Int      @default(0)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// AI装备设计
+// ==========================================
+
+model AIDesign {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  prompt            String
+  name              String
+  equipmentType     String
+  modelType         String
+  description       String?
+  stats             String   // JSON格式存储统计数据
+  designSuggestions String?  // JSON格式存储设计建议
+  technicalSpecs    String?  // JSON格式存储技术规格
+  analysis          String?  // JSON格式存储分析结果
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+}
+

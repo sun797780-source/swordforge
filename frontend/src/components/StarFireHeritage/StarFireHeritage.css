@@ -1,0 +1,170 @@
+.heritage-container {
+    display: flex;
+    height: calc(100vh - 72px);
+    background: var(--bg-primary);
+}
+
+.heritage-sidebar {
+    width: 380px;
+    background: linear-gradient(180deg, #0a0b0e 0%, #0f1015 50%, #0a0b0e 100%);
+    border-right: 1px solid rgba(201, 165, 92, 0.15);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 侧边栏装饰线 */
+.heritage-sidebar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, 
+        transparent 0%, 
+        rgba(201, 165, 92, 0.4) 20%, 
+        rgba(201, 165, 92, 0.6) 50%, 
+        rgba(201, 165, 92, 0.4) 80%, 
+        transparent 100%
+    );
+}
+
+/* 侧边栏头部 */
+.sidebar-header {
+    padding: 1.5rem 1.5rem 1rem;
+    background: linear-gradient(180deg, rgba(201, 165, 92, 0.08) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(201, 165, 92, 0.1);
+}
+
+.heritage-sidebar h2 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--primary-gold);
+    margin: 0 0 0.3rem 0;
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 20px rgba(201, 165, 92, 0.3);
+    position: relative;
+}
+
+.sidebar-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.heritage-viewer {
+    flex: 1;
+    position: relative;
+    background: radial-gradient(ellipse at center, #0d0e12 0%, #050507 100%);
+    overflow: hidden;
+}
+
+/* 博物馆标题 */
+.museum-title {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.6rem 1.5rem;
+    background: linear-gradient(135deg, rgba(10, 10, 15, 0.9) 0%, rgba(20, 20, 30, 0.9) 100%);
+    border: 1px solid rgba(201, 165, 92, 0.3);
+    border-radius: 8px;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.museum-icon {
+    font-size: 1.2rem;
+}
+
+.museum-title > span:nth-child(2) {
+    font-weight: 600;
+    color: var(--primary-gold);
+    font-size: 1rem;
+    letter-spacing: 2px;
+}
+
+.museum-hint {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    padding-left: 0.8rem;
+    border-left: 1px solid rgba(201, 165, 92, 0.3);
+}
+
+/* 视口装饰角 */
+.heritage-viewer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    background: 
+        linear-gradient(to right, rgba(201, 165, 92, 0.1) 1px, transparent 1px) 0 0 / 40px 40px,
+        linear-gradient(to bottom, rgba(201, 165, 92, 0.05) 1px, transparent 1px) 0 0 / 40px 40px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 70%);
+    opacity: 0.3;
+}
+
+/* 视口边框发光 */
+.heritage-viewer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 6;
+    box-shadow: 
+        inset 0 0 80px rgba(0, 0, 0, 0.8),
+        inset 0 0 200px rgba(0, 0, 0, 0.4);
+}
+
+/* 响应式 */
+@media (max-width: 1200px) {
+    .heritage-sidebar {
+        width: 320px;
+    }
+    
+    .sidebar-header {
+        padding: 1rem;
+    }
+    
+    .heritage-sidebar h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .heritage-container {
+        flex-direction: column;
+    }
+
+    .heritage-sidebar {
+        width: 100%;
+        height: 40vh;
+        border-right: none;
+        border-bottom: 1px solid rgba(201, 165, 92, 0.2);
+    }
+
+    .heritage-sidebar::after {
+        display: none;
+    }
+
+    .heritage-viewer {
+        height: 60vh;
+    }
+    
+    .museum-title {
+        top: 0.5rem;
+        padding: 0.4rem 1rem;
+    }
+    
+    .museum-hint {
+        display: none;
+    }
+}

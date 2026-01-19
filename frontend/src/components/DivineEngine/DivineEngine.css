@@ -1,0 +1,241 @@
+.divine-container {
+    height: calc(100vh - 72px);
+    background: #050505;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.divine-header {
+    height: 80px;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    background: rgba(10, 10, 10, 0.8);
+    border-bottom: 1px solid #1f1f1f;
+    z-index: 10;
+}
+
+.divine-title {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    background: linear-gradient(90deg, #fff, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-right: 2rem;
+}
+
+.ai-input-group {
+    flex: 1;
+    display: flex;
+    gap: 1rem;
+    max-width: 800px;
+    background: #111;
+    padding: 0.5rem;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+.ai-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    padding: 0 1rem;
+}
+
+.generate-btn {
+    background: var(--primary-gold);
+    color: #000;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.generate-btn:hover {
+    background: #e0b86c;
+    box-shadow: 0 0 15px rgba(201, 165, 92, 0.4);
+}
+
+.generate-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #555;
+    box-shadow: none;
+}
+
+.simulation-arena {
+    flex: 1;
+    position: relative;
+    background: radial-gradient(circle at center, #13151a 0%, #000 100%);
+}
+
+.stats-hud {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    width: 300px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 1.5rem;
+    color: #00ffaa;
+    font-family: 'Courier New', monospace;
+}
+
+.hud-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px dashed rgba(0, 255, 170, 0.2);
+    padding-bottom: 0.4rem;
+}
+
+.hud-value {
+    font-weight: bold;
+}
+
+.generation-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    color: var(--primary-gold);
+}
+
+.history-panel {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    border: 1px solid #333;
+    overflow-x: auto;
+    max-width: 90%;
+}
+
+.history-item {
+    min-width: 140px;
+    height: 50px;
+    background: #333;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0 0.8rem;
+    font-size: 0.7rem;
+    color: #aaa;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.history-item-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.history-item-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.history-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.history-item:hover .history-item-actions,
+.history-item.active .history-item-actions {
+    opacity: 1;
+}
+
+.history-item-actions .ant-btn {
+    padding: 0.2rem 0.4rem;
+    height: auto;
+    line-height: 1;
+    color: #aaa;
+    border: none;
+    background: transparent;
+}
+
+.history-item-actions .ant-btn:hover {
+    color: var(--primary-gold);
+    background: rgba(201, 165, 92, 0.1);
+}
+
+.history-item-actions .ant-btn-danger:hover {
+    color: #ff4d4f;
+    background: rgba(255, 77, 79, 0.1);
+}
+
+.history-item:hover,
+.history-item.active {
+    border-color: var(--primary-gold);
+    background: #444;
+    color: #fff;
+}
+
+.history-item.selected {
+    border-color: #1890ff;
+    background: rgba(24, 144, 255, 0.1);
+}
+
+/* 详情Modal暗色主题样式 */
+.divine-detail-modal .ant-modal-content {
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.divine-detail-modal .ant-modal-header {
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+}
+
+.divine-detail-modal .ant-modal-header .ant-modal-title {
+    color: #e0e0e0;
+}
+
+.divine-detail-modal .ant-modal-body {
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.divine-detail-modal .ant-modal-footer {
+    background: #1a1a1a;
+    border-top: 1px solid #333;
+}
+
+.divine-detail-modal .ant-modal-close {
+    color: #888;
+}
+
+.divine-detail-modal .ant-modal-close:hover {
+    color: #fff;
+}

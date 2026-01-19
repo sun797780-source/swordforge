@@ -1,0 +1,826 @@
+/* ==========================================
+   铸剑乾坤 - 管理中心样式
+   高端大气的登录与管理界面
+   ========================================== */
+
+/* 登录页面 - 全屏沉浸式设计 */
+.admin-login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0c10 0%, #1a1d25 50%, #0d1117 100%);
+}
+
+/* 动态背景粒子效果 */
+.admin-login-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(ellipse at 20% 80%, rgba(201, 165, 92, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(184, 115, 51, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(201, 165, 92, 0.03) 0%, transparent 70%);
+    animation: backgroundPulse 8s ease-in-out infinite;
+}
+
+@keyframes backgroundPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* 装饰线条 */
+.admin-login-page::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(90deg, transparent 49.5%, rgba(201, 165, 92, 0.03) 49.5%, rgba(201, 165, 92, 0.03) 50.5%, transparent 50.5%),
+        linear-gradient(0deg, transparent 49.5%, rgba(201, 165, 92, 0.03) 49.5%, rgba(201, 165, 92, 0.03) 50.5%, transparent 50.5%);
+    background-size: 60px 60px;
+    pointer-events: none;
+}
+
+/* 登录容器 */
+.admin-login-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 480px;
+    padding: 0 24px;
+}
+
+/* 品牌区域 */
+.admin-brand {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.admin-brand-logo {
+    font-size: 48px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #c9a55c 0%, #f0d78c 50%, #b87333 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 60px rgba(201, 165, 92, 0.3);
+    letter-spacing: 8px;
+    margin-bottom: 12px;
+    font-family: 'STKaiti', 'KaiTi', serif;
+}
+
+.admin-brand-subtitle {
+    font-size: 14px;
+    color: rgba(201, 165, 92, 0.6);
+    letter-spacing: 4px;
+    font-weight: 300;
+}
+
+/* 登录卡片 */
+.admin-login-card {
+    background: linear-gradient(145deg, rgba(26, 29, 37, 0.95) 0%, rgba(13, 17, 23, 0.98) 100%);
+    border: 1px solid rgba(201, 165, 92, 0.15);
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 
+        0 25px 80px -20px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(201, 165, 92, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 卡片装饰 */
+.admin-login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #c9a55c, transparent);
+    opacity: 0.6;
+}
+
+.admin-login-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(201, 165, 92, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* 卡片标题 */
+.admin-card-title {
+    text-align: center;
+    margin-bottom: 36px;
+    position: relative;
+    z-index: 1;
+}
+
+.admin-card-title h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+}
+
+.admin-card-title p {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0;
+}
+
+/* 表单区域 */
+.admin-login-form {
+    position: relative;
+    z-index: 1;
+}
+
+.admin-form-item {
+    margin-bottom: 24px;
+}
+
+.admin-form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.admin-form-label .required {
+    color: #c9a55c;
+    margin-right: 4px;
+}
+
+/* 输入框样式 */
+.admin-input-wrapper {
+    position: relative;
+}
+
+.admin-input {
+    width: 100%;
+    height: 52px;
+    padding: 0 20px;
+    font-size: 15px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.admin-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.admin-input:hover {
+    border-color: rgba(201, 165, 92, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-input:focus {
+    border-color: #c9a55c;
+    background: rgba(201, 165, 92, 0.05);
+    box-shadow: 0 0 0 3px rgba(201, 165, 92, 0.1), 0 0 20px rgba(201, 165, 92, 0.1);
+}
+
+/* 密码显示按钮 */
+.admin-password-toggle {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    padding: 4px;
+    font-size: 18px;
+    transition: color 0.2s;
+}
+
+.admin-password-toggle:hover {
+    color: #c9a55c;
+}
+
+/* 登录按钮 */
+.admin-submit-btn {
+    width: 100%;
+    height: 56px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0a0c10;
+    background: linear-gradient(135deg, #c9a55c 0%, #dfc07a 50%, #c9a55c 100%);
+    background-size: 200% 100%;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.admin-submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.admin-submit-btn:hover {
+    background-position: 100% 0;
+    box-shadow: 0 8px 30px rgba(201, 165, 92, 0.4), 0 0 40px rgba(201, 165, 92, 0.2);
+    transform: translateY(-2px);
+}
+
+.admin-submit-btn:hover::before {
+    left: 100%;
+}
+
+.admin-submit-btn:active {
+    transform: translateY(0);
+}
+
+.admin-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 默认账号提示 */
+.admin-default-hint {
+    text-align: center;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-default-hint span {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.admin-default-hint strong {
+    color: #c9a55c;
+    font-weight: 500;
+    margin-left: 8px;
+    letter-spacing: 1px;
+}
+
+/* 底部装饰 */
+.admin-login-footer {
+    text-align: center;
+    margin-top: 32px;
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+/* 错误提示 */
+.admin-error-msg {
+    background: rgba(255, 77, 79, 0.1);
+    border: 1px solid rgba(255, 77, 79, 0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    color: #ff6b6b;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 切换登录/注册模式 */
+.admin-switch-mode {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.admin-link-btn {
+    background: none;
+    border: none;
+    color: #c9a55c;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 8px;
+    font-size: 13px;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.admin-link-btn:hover {
+    color: #f0d78c;
+}
+
+/* 注册表单样式 */
+.admin-login-form .ant-form-item {
+    margin-bottom: 20px;
+}
+
+.admin-login-form .ant-form-item-label > label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.admin-login-form .ant-form-item-label > label .ant-form-item-required::before {
+    color: #c9a55c;
+}
+
+.admin-login-form .ant-input,
+.admin-login-form .ant-input-password {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 12px;
+    height: 52px;
+    padding: 0 20px;
+}
+
+.admin-login-form .ant-input::placeholder,
+.admin-login-form .ant-input-password input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.admin-login-form .ant-input:hover,
+.admin-login-form .ant-input-password:hover {
+    border-color: rgba(201, 165, 92, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-login-form .ant-input:focus,
+.admin-login-form .ant-input-password:focus-within {
+    border-color: #c9a55c;
+    background: rgba(201, 165, 92, 0.05);
+    box-shadow: 0 0 0 3px rgba(201, 165, 92, 0.1), 0 0 20px rgba(201, 165, 92, 0.1);
+}
+
+.admin-login-form .ant-input-password .ant-input {
+    background: transparent;
+    border: none;
+    padding: 0;
+    height: auto;
+}
+
+.admin-login-form .ant-input-password-icon {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.admin-login-form .ant-input-password-icon:hover {
+    color: #c9a55c;
+}
+
+/* ==========================================
+   管理后台主界面
+   ========================================== */
+
+.admin-layout {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0a0c10 0%, #12151c 100%);
+}
+
+.admin-content {
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(201, 165, 92, 0.1);
+}
+
+.admin-header-left h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 8px 0;
+    background: linear-gradient(135deg, #c9a55c, #f0d78c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.admin-subtitle {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+    margin: 0;
+}
+
+.admin-user-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.admin-user-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #c9a55c, #b87333);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: #0a0c10;
+}
+
+.admin-user-detail {
+    text-align: right;
+}
+
+.admin-user-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.admin-user-role {
+    font-size: 11px;
+    color: #c9a55c;
+    margin-top: 2px;
+}
+
+/* 工具栏 */
+.admin-toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.admin-search-input {
+    flex: 1;
+    min-width: 200px;
+    height: 44px;
+    padding: 0 16px;
+    font-size: 14px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.admin-search-input:focus {
+    border-color: #c9a55c;
+    background: rgba(201, 165, 92, 0.05);
+}
+
+.admin-btn {
+    height: 44px;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-btn-primary {
+    background: linear-gradient(135deg, #c9a55c, #dfc07a);
+    color: #0a0c10;
+    border: none;
+}
+
+.admin-btn-primary:hover {
+    box-shadow: 0 4px 20px rgba(201, 165, 92, 0.4);
+    transform: translateY(-1px);
+}
+
+.admin-btn-danger {
+    background: transparent;
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.admin-btn-danger:hover {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: #ff6b6b;
+}
+
+/* 数据表格 */
+.admin-table-wrapper {
+    background: rgba(26, 29, 37, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Ant Design 表格覆盖 */
+.admin-table-wrapper .ant-table {
+    background: transparent;
+}
+
+.admin-table-wrapper .ant-table-thead > tr > th {
+    background: rgba(201, 165, 92, 0.08);
+    color: #c9a55c;
+    font-weight: 500;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(201, 165, 92, 0.1);
+    padding: 16px;
+}
+
+.admin-table-wrapper .ant-table-tbody > tr > td {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 14px 16px;
+    font-size: 13px;
+}
+
+.admin-table-wrapper .ant-table-tbody > tr:hover > td {
+    background: rgba(201, 165, 92, 0.05);
+}
+
+.admin-table-wrapper .ant-table-tbody > tr:last-child > td {
+    border-bottom: none;
+}
+
+/* 状态标签 */
+.admin-status-active {
+    background: rgba(82, 196, 26, 0.1);
+    color: #52c41a;
+    border: 1px solid rgba(82, 196, 26, 0.3);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.admin-status-inactive {
+    background: rgba(255, 77, 79, 0.1);
+    color: #ff4d4f;
+    border: 1px solid rgba(255, 77, 79, 0.3);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+/* 角色标签 */
+.admin-role-super {
+    background: linear-gradient(135deg, rgba(201, 165, 92, 0.2), rgba(184, 115, 51, 0.2));
+    color: #c9a55c;
+    border: 1px solid rgba(201, 165, 92, 0.4);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.admin-role-admin {
+    background: rgba(24, 144, 255, 0.1);
+    color: #1890ff;
+    border: 1px solid rgba(24, 144, 255, 0.3);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.admin-role-user {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+/* 操作按钮 */
+.admin-action-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.admin-action-btn:hover {
+    background: rgba(201, 165, 92, 0.1);
+    color: #c9a55c;
+}
+
+.admin-action-btn-danger:hover {
+    background: rgba(255, 77, 79, 0.1);
+    color: #ff4d4f;
+}
+
+/* 分页 */
+.admin-table-wrapper .ant-pagination {
+    padding: 16px;
+    margin: 0;
+}
+
+.admin-table-wrapper .ant-pagination-item {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-table-wrapper .ant-pagination-item a {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.admin-table-wrapper .ant-pagination-item-active {
+    background: rgba(201, 165, 92, 0.1);
+    border-color: #c9a55c;
+}
+
+.admin-table-wrapper .ant-pagination-item-active a {
+    color: #c9a55c;
+}
+
+/* 弹窗样式 */
+.admin-modal .ant-modal-content {
+    background: linear-gradient(145deg, #1a1d25, #0d1117);
+    border: 1px solid rgba(201, 165, 92, 0.15);
+    border-radius: 16px;
+}
+
+.admin-modal .ant-modal-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 20px 24px;
+}
+
+.admin-modal .ant-modal-title {
+    color: #fff;
+    font-size: 18px;
+}
+
+.admin-modal .ant-modal-body {
+    padding: 24px;
+}
+
+.admin-modal .ant-modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 16px 24px;
+}
+
+/* 个人信息管理 */
+.admin-profile-section {
+    background: rgba(26, 29, 37, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.admin-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #c9a55c;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(201, 165, 92, 0.1);
+}
+
+.admin-profile-form {
+    max-width: 600px;
+}
+
+.admin-profile-form .ant-form-item-label > label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.admin-profile-form .ant-input,
+.admin-profile-form .ant-input-password {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 8px;
+    height: 44px;
+}
+
+.admin-profile-form .ant-input:disabled {
+    background: rgba(255, 255, 255, 0.02);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+}
+
+.admin-profile-form .ant-input:hover:not(:disabled),
+.admin-profile-form .ant-input-password:hover {
+    border-color: rgba(201, 165, 92, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-profile-form .ant-input:focus,
+.admin-profile-form .ant-input-password:focus-within {
+    border-color: #c9a55c;
+    background: rgba(201, 165, 92, 0.05);
+    box-shadow: 0 0 0 3px rgba(201, 165, 92, 0.1);
+}
+
+.admin-profile-form .ant-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.admin-profile-form .ant-btn-primary {
+    background: linear-gradient(135deg, #c9a55c, #dfc07a);
+    border: none;
+    color: #0a0c10;
+    height: 44px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+.admin-profile-form .ant-btn-primary:hover {
+    box-shadow: 0 4px 20px rgba(201, 165, 92, 0.4);
+    transform: translateY(-1px);
+}
+
+/* 无权限提示 */
+.admin-no-permission {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.admin-no-permission-icon {
+    font-size: 64px;
+    color: rgba(201, 165, 92, 0.3);
+    margin-bottom: 24px;
+}
+
+.admin-no-permission h2 {
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.admin-no-permission p {
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 24px;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .admin-login-container {
+        padding: 0 16px;
+    }
+    
+    .admin-login-card {
+        padding: 32px 24px;
+    }
+    
+    .admin-brand-logo {
+        font-size: 36px;
+    }
+    
+    .admin-content {
+        padding: 16px;
+    }
+    
+    .admin-header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+}

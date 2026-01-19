@@ -1,0 +1,50 @@
+# ==========================================
+# 铸剑乾坤 - 环境变量配置
+# ==========================================
+# 使用方法：将此文件复制为 .env 文件（在 backend 目录下）
+
+# 数据库配置
+DATABASE_URL=file:./prisma/swordforge.db
+
+# JWT 配置
+JWT_SECRET=swordforge_super_secret_change_me
+JWT_EXPIRES_IN=2h
+JWT_REFRESH_EXPIRES_IN=7d
+
+# 管理员配置
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=123456
+ADMIN_NAME=系统管理员
+
+# AI 配置
+AI_PROVIDER=zhipu
+AI_API_KEY=1285a50b545345489e00918181f4f703.JSOrs6T22vmT3rR5
+AI_BASE_URL=
+
+# ==========================================
+# 邮件服务配置（用于问题反馈功能）
+# ==========================================
+# SMTP 服务器地址（QQ邮箱使用 smtp.qq.com）
+SMTP_HOST=smtp.qq.com
+
+# SMTP 端口（QQ邮箱使用 587）
+SMTP_PORT=587
+
+# 发送邮件的QQ邮箱地址（请替换为你的QQ邮箱）
+SMTP_USER=你的QQ邮箱@qq.com
+
+# QQ邮箱授权码（不是QQ密码！）
+# 获取方式：
+# 1. 登录 QQ邮箱
+# 2. 设置 -> 账户
+# 3. 开启 SMTP 服务
+# 4. 生成授权码并复制到这里
+SMTP_PASS=你的QQ邮箱授权码
+
+# ==========================================
+# 注意：
+# 1. 请将上面的 "你的QQ邮箱@qq.com" 替换为实际的QQ邮箱
+# 2. 请将 "你的QQ邮箱授权码" 替换为实际的授权码
+# 3. 如果没有配置邮件服务，问题反馈仍会正常工作，但只会输出到控制台
+# ==========================================
+
