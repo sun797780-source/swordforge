@@ -13,6 +13,14 @@ try {
     const { PrismaClient } = require('@prisma/client')
     prisma = new PrismaClient()
     console.log('✅ Prisma客户端已初始化')
+    
+    // 测试数据库连接
+    prisma.$connect().then(() => {
+        console.log('✅ 数据库连接成功')
+    }).catch((err) => {
+        console.error('❌ 数据库连接失败:', err)
+        console.log('⚠️  继续使用内存存储模式')
+    })
 } catch (e) {
     console.warn('⚠️  Prisma客户端未安装，将使用内存存储:', e.message)
     console.warn('   请运行: cd backend && npm install && npx prisma generate && npx prisma migrate dev')
@@ -1821,15 +1829,31 @@ io.on('connection', (socket) => {
 // ==========================================
 const PORT = process.env.PORT || 3001
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
     console.log('')
     console.log('==========================================')
     console.log('   铸剑乾坤 - 后端服务已启动')
     console.log('==========================================')
-    console.log(`   API 地址: http://localhost:${PORT}`)
+    console.log(`   API 地址: http://0.0.0.0:${PORT}`)
+    console.log(`   端口: ${PORT}`)
     console.log(`   管理员: ${config.admin.username} / ${config.admin.password}`)
     console.log('==========================================')
     console.log('')
+})
+
+// 添加错误处理
+httpServer.on('error', (err) => {
+    console.error('❌ 服务器启动失败:', err)
+    process.exit(1)
+})
+
+process.on('uncaughtException', (err) => {
+    console.error('❌ 未捕获的异常:', err)
+    process.exit(1)
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ 未处理的 Promise 拒绝:', reason)
 })
 
 // 优雅关闭 - 关闭数据库连接
