@@ -1,3 +1,9 @@
+// 启动调试
+console.log('=== 铸剑乾坤后端启动 ===')
+console.log('NODE_ENV:', process.env.NODE_ENV)
+console.log('PORT:', process.env.PORT)
+console.log('DATABASE_URL:', process.env.DATABASE_URL)
+
 const express = require('express')
 const cors = require('cors')
 const { createServer } = require('http')
