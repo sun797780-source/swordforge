@@ -13,24 +13,27 @@ const path = require('path')
 const config = require('./config')
 const { analyzeEquipmentDesign } = require('./aiService')
 
-// 初始化Prisma客户端
+// 初始化Prisma客户端 - 延迟初始化，不阻塞启动
 let prisma = null
-try {
-    const { PrismaClient } = require('@prisma/client')
-    prisma = new PrismaClient()
-    console.log('✅ Prisma客户端已初始化')
-    
-    // 测试数据库连接
-    prisma.$connect().then(() => {
-        console.log('✅ 数据库连接成功')
-    }).catch((err) => {
-        console.error('❌ 数据库连接失败:', err)
-        console.log('⚠️  继续使用内存存储模式')
-    })
-} catch (e) {
-    console.warn('⚠️  Prisma客户端未安装，将使用内存存储:', e.message)
-    console.warn('   请运行: cd backend && npm install && npx prisma generate && npx prisma migrate dev')
+let prismaReady = false
+
+// 异步初始化数据库
+async function initDatabase() {
+    try {
+        const { PrismaClient } = require('@prisma/client')
+        prisma = new PrismaClient()
+        await prisma.$connect()
+        prismaReady = true
+        console.log('✅ Prisma客户端已初始化，数据库连接成功')
+    } catch (e) {
+        console.warn('⚠️  Prisma初始化失败，使用内存存储:', e.message)
+        prisma = null
+        prismaReady = false
+    }
 }
+
+// 后台初始化数据库，不阻塞服务启动
+initDatabase()
 
 // 配置 CORS 允许的源
 const corsOrigins = process.env.CORS_ORIGIN 
