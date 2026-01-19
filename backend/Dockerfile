@@ -1,21 +1,16 @@
-FROM node:20-slim
+FROM node:20
 
 WORKDIR /app
-
-# 安装必要的系统依赖
-RUN apt-get update && apt-get install -y \
-    openssl \
-    && rm -rf /var/lib/apt/lists/*
 
 # 复制 package 文件
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# 安装依赖
-RUN npm install
+# 安装依赖（包括 devDependencies，因为需要 prisma CLI）
+RUN npm install --include=dev
 
 # 生成 Prisma Client
-RUN npx prisma generate
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # 复制源代码
 COPY . .
