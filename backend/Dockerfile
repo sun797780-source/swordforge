@@ -15,8 +15,8 @@ COPY . .
 # 暴露端口
 EXPOSE 3001
 
-# 启动时生成 Prisma Client 并启动服务
-CMD ["sh", "-c", "npx prisma generate && npm start"]
+# 启动时：生成 Prisma Client，初始化数据库，然后启动服务
+CMD ["sh", "-c", "echo '=== Starting backend ===' && npx prisma generate && echo '=== Prisma generated ===' && npx prisma db push --accept-data-loss && echo '=== Database initialized ===' && node src/index.js"]
 
 
 
