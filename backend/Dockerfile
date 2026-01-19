@@ -1,6 +1,11 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
+
+# 安装必要的系统依赖
+RUN apt-get update && apt-get install -y \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
 # 复制 package 文件
 COPY package*.json ./
