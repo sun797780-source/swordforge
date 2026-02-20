@@ -36,7 +36,7 @@ async function initDatabase() {
 initDatabase()
 
 // 配置 CORS 允许的源
-const corsOrigins = process.env.CORS_ORIGIN 
+const corsOrigins = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
     : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173']
 
@@ -49,10 +49,12 @@ const io = new Server(httpServer, {
     }
 })
 
-// 中间件
+// 配置CORS - 允许所有来源以确保部署成功
 app.use(cors({
-    origin: corsOrigins,
-    credentials: true
+    origin: true, // 允许所有来源
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }))
 app.use(express.json())
 
@@ -224,13 +226,13 @@ const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization
     if (!authHeader) return res.status(401).json({ error: '未提供认证信息' })
     const token = authHeader.replace('Bearer ', '')
-    
+
     const payload = verifyToken(token)
     if (!payload) return res.status(401).json({ error: '认证失败或已过期' })
-    
+
     const session = sessions.get(token)
     if (!session) return res.status(401).json({ error: '会话已失效' })
-    
+
     req.user = payload
     req.token = token
     next()
@@ -387,23 +389,23 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
 app.post('/api/auth/refresh', (req, res) => {
     const { refreshToken } = req.body
     if (!refreshToken) return res.status(400).json({ error: '缺少刷新令牌' })
-    
+
     const payload = verifyToken(refreshToken)
     if (!payload) return res.status(401).json({ error: '刷新令牌无效' })
-    
+
     const user = users.get(payload.userId)
     if (!user) return res.status(401).json({ error: '用户不存在' })
-    
+
     const newAccessToken = generateToken({ userId: user.id, role: user.role }, '2h')
     const newRefreshToken = generateToken({ userId: user.id, role: user.role }, '7d')
-    
+
     sessions.set(newAccessToken, {
         userId: user.id,
         token: newAccessToken,
         refreshToken: newRefreshToken,
         createdAt: new Date().toISOString()
     })
-    
+
     res.json({ token: newAccessToken, refreshToken: newRefreshToken })
 })
 
@@ -411,23 +413,23 @@ app.post('/api/auth/refresh', (req, res) => {
 app.post('/api/auth/register', async (req, res) => {
     console.log('📝 收到注册请求:', req.body)
     const { username, password, name, department, position } = req.body
-    
+
     if (!username || !password || !name) {
         console.log('❌ 注册失败: 必填字段为空')
         return res.status(400).json({ error: '用户名、密码和姓名不能为空' })
     }
-    
+
     if (password.length < 6) {
         return res.status(400).json({ error: '密码长度至少6位' })
     }
-    
+
     // 检查用户名是否已存在（内存中）
     for (const user of users.values()) {
         if (user.username === username) {
             return res.status(400).json({ error: '用户名已存在' })
         }
     }
-    
+
     // 如果使用Prisma，检查数据库中是否已存在
     if (prisma) {
         try {
@@ -439,10 +441,10 @@ app.post('/api/auth/register', async (req, res) => {
             console.error('检查用户是否存在失败:', error)
         }
     }
-    
+
     // 创建新用户
     const userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9)
-    
+
     // 生成密码哈希
     let passwordHash
     if (bcrypt) {
@@ -455,7 +457,7 @@ app.post('/api/auth/register', async (req, res) => {
     } else {
         passwordHash = hashPassword(password)
     }
-    
+
     const newUser = {
         id: userId,
         username,
@@ -468,10 +470,10 @@ app.post('/api/auth/register', async (req, res) => {
         createdAt: new Date().toISOString(),
         lastLoginAt: null
     }
-    
+
     // 保存到内存
     users.set(userId, newUser)
-    
+
     // 同步到数据库
     if (prisma) {
         try {
@@ -495,7 +497,7 @@ app.post('/api/auth/register', async (req, res) => {
             // 继续注册流程，不阻止注册
         }
     }
-    
+
     res.status(201).json({
         success: true,
         message: '注册成功',
@@ -512,12 +514,12 @@ app.post('/api/auth/register', async (req, res) => {
 app.put('/api/auth/profile', authenticateToken, (req, res) => {
     const user = users.get(req.user.userId)
     if (!user) return res.status(404).json({ error: '用户不存在' })
-    
+
     const { name, department, position } = req.body
     if (name !== undefined) user.name = name
     if (department !== undefined) user.department = department
     if (position !== undefined) user.position = position
-    
+
     // 同步到数据库
     if (prisma) {
         prisma.user.update({
@@ -529,7 +531,7 @@ app.put('/api/auth/profile', authenticateToken, (req, res) => {
             }
         }).catch(err => console.error('更新用户信息到数据库失败:', err))
     }
-    
+
     res.json({
         id: user.id,
         username: user.username,
@@ -544,18 +546,18 @@ app.put('/api/auth/profile', authenticateToken, (req, res) => {
 app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
     const user = users.get(req.user.userId)
     if (!user) return res.status(404).json({ error: '用户不存在' })
-    
+
     const { oldPassword, newPassword } = req.body
     if (!oldPassword || !newPassword) {
         return res.status(400).json({ error: '旧密码和新密码不能为空' })
     }
-    
+
     // 验证旧密码
     const passwordValid = await verifyPassword(oldPassword, user.password)
     if (!passwordValid) {
         return res.status(400).json({ error: '旧密码错误' })
     }
-    
+
     // 更新密码 - 优先使用bcrypt，否则使用SHA256
     let newPasswordHash
     if (bcrypt) {
@@ -568,9 +570,9 @@ app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
     } else {
         newPasswordHash = hashPassword(newPassword)
     }
-    
+
     user.password = newPasswordHash
-    
+
     // 同步到数据库
     if (prisma) {
         try {
@@ -582,7 +584,7 @@ app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
             console.error('更新密码到数据库失败:', err)
         }
     }
-    
+
     res.json({ success: true })
 })
 
@@ -592,15 +594,15 @@ app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
 app.get('/api/admin/users', authenticateToken, requireRole(['SUPER_ADMIN', 'ADMIN']), (req, res) => {
     const { page = 1, limit = 20, keyword = '' } = req.query
     let userList = Array.from(users.values())
-    
+
     if (keyword) {
         const kw = keyword.toLowerCase()
-        userList = userList.filter(u => 
-            u.username.toLowerCase().includes(kw) || 
+        userList = userList.filter(u =>
+            u.username.toLowerCase().includes(kw) ||
             u.name.toLowerCase().includes(kw)
         )
     }
-    
+
     const start = (parseInt(page) - 1) * parseInt(limit)
     const data = userList.slice(start, start + parseInt(limit)).map(u => ({
         id: u.id,
@@ -613,7 +615,7 @@ app.get('/api/admin/users', authenticateToken, requireRole(['SUPER_ADMIN', 'ADMI
         lastLoginAt: u.lastLoginAt,
         createdAt: u.createdAt
     }))
-    
+
     res.json({ data, total: userList.length, page: parseInt(page), limit: parseInt(limit) })
 })
 
@@ -622,14 +624,14 @@ app.post('/api/admin/users', authenticateToken, requireRole(['SUPER_ADMIN', 'ADM
     if (!username || !password || !name) {
         return res.status(400).json({ error: '用户名、密码和姓名不能为空' })
     }
-    
+
     // 检查用户名是否已存在
     for (const user of users.values()) {
         if (user.username === username) {
             return res.status(400).json({ error: '用户名已存在' })
         }
     }
-    
+
     const id = 'user-' + Date.now()
     const newUser = {
         id,
@@ -644,7 +646,7 @@ app.post('/api/admin/users', authenticateToken, requireRole(['SUPER_ADMIN', 'ADM
         lastLoginAt: null
     }
     users.set(id, newUser)
-    
+
     res.status(201).json({
         id: newUser.id,
         username: newUser.username,
@@ -660,13 +662,13 @@ app.post('/api/admin/users', authenticateToken, requireRole(['SUPER_ADMIN', 'ADM
 app.put('/api/admin/users/:id', authenticateToken, requireRole(['SUPER_ADMIN', 'ADMIN']), (req, res) => {
     const user = users.get(req.params.id)
     if (!user) return res.status(404).json({ error: '用户不存在' })
-    
+
     const { name, role, department, position } = req.body
     if (name) user.name = name
     if (role) user.role = role
     if (department !== undefined) user.department = department
     if (position !== undefined) user.position = position
-    
+
     res.json({
         id: user.id,
         username: user.username,
@@ -681,20 +683,20 @@ app.put('/api/admin/users/:id', authenticateToken, requireRole(['SUPER_ADMIN', '
 app.patch('/api/admin/users/:id/status', authenticateToken, requireRole(['SUPER_ADMIN', 'ADMIN']), (req, res) => {
     const user = users.get(req.params.id)
     if (!user) return res.status(404).json({ error: '用户不存在' })
-    
+
     const { isActive } = req.body
     user.isActive = isActive
-    
+
     res.json({ id: user.id, isActive: user.isActive })
 })
 
 app.post('/api/admin/users/:id/reset-password', authenticateToken, requireRole(['SUPER_ADMIN', 'ADMIN']), (req, res) => {
     const user = users.get(req.params.id)
     if (!user) return res.status(404).json({ error: '用户不存在' })
-    
+
     const { newPassword } = req.body
     if (!newPassword) return res.status(400).json({ error: '新密码不能为空' })
-    
+
     user.password = hashPassword(newPassword)
     res.json({ success: true })
 })
@@ -828,7 +830,7 @@ app.post('/api/collaborate/annotations', async (req, res, next) => {
 }, async (req, res) => {
     try {
         const { projectId, partId, position, content, type, author, authorId } = req.body
-        
+
         // 验证必要字段
         if (!projectId) {
             return res.status(400).json({ error: '项目ID不能为空' })
@@ -836,18 +838,18 @@ app.post('/api/collaborate/annotations', async (req, res, next) => {
         if (!content || !content.trim()) {
             return res.status(400).json({ error: '标注内容不能为空' })
         }
-        
-        console.log('📝 创建标注请求:', { 
-            projectId, 
-            partId, 
-            content: content.substring(0, 20), 
-            type, 
-            author, 
+
+        console.log('📝 创建标注请求:', {
+            projectId,
+            partId,
+            content: content.substring(0, 20),
+            type,
+            author,
             authorId,
             reqUser: req.user?.userId,
             hasAuth: !!req.user
         })
-        
+
         if (prisma) {
             // 检查项目是否存在，如果不存在则创建
             let project = await prisma.project.findUnique({ where: { id: projectId } })
@@ -876,13 +878,13 @@ app.post('/api/collaborate/annotations', async (req, res, next) => {
                 }
             }
             const actualProjectId = project.id
-            
+
             // 获取用户ID的优先级：
             // 1. 从认证token获取（最可靠，优先使用）
             // 2. 从请求体获取 authorId
             // 3. 从请求体获取 author
             let userId = req.user?.userId || authorId || author
-            
+
             // 验证并获取最终的用户ID
             let finalUserId = null
             if (userId) {
@@ -895,7 +897,7 @@ app.post('/api/collaborate/annotations', async (req, res, next) => {
                     console.warn('⚠️  指定的用户不存在:', userId)
                 }
             }
-            
+
             // 如果用户ID无效，优先使用认证token中的用户
             if (!finalUserId && req.user?.userId) {
                 const authUser = await prisma.user.findUnique({ where: { id: req.user.userId } })
@@ -904,7 +906,7 @@ app.post('/api/collaborate/annotations', async (req, res, next) => {
                     console.log('✅ 使用认证用户:', authUser.name, authUser.id)
                 }
             }
-            
+
             // 如果还是没有，使用admin用户
             if (!finalUserId) {
                 const adminUser = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN' } })
@@ -922,9 +924,9 @@ app.post('/api/collaborate/annotations', async (req, res, next) => {
                     }
                 }
             }
-            
+
             console.log('👤 最终使用用户ID:', finalUserId)
-            
+
             // 保存到数据库
             const annotation = await prisma.annotation.create({
                 data: {
@@ -944,7 +946,7 @@ app.post('/api/collaborate/annotations', async (req, res, next) => {
                     }
                 }
             })
-            
+
             const result = {
                 id: annotation.id,
                 projectId: annotation.projectId,
@@ -957,7 +959,7 @@ app.post('/api/collaborate/annotations', async (req, res, next) => {
                 createdAt: annotation.createdAt.toISOString(),
                 resolved: annotation.resolved
             }
-            
+
             io.to(actualProjectId).emit('annotation-added', result)
             console.log('✅ 标注创建成功:', result.id)
             return res.status(201).json(result)
@@ -981,28 +983,28 @@ app.post('/api/collaborate/annotations', async (req, res, next) => {
             message: error.message,
             meta: error.meta
         })
-        
+
         const errorMessage = error.message || '创建标注失败'
         const errorDetails = process.env.NODE_ENV === 'development' ? error.stack : undefined
-        
+
         // 如果是数据库相关错误，提供更详细的错误信息
         if (error.code === 'P2002') {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 error: '标注已存在',
                 message: errorMessage,
-                details: errorDetails 
+                details: errorDetails
             })
         }
         if (error.code === 'P2003') {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 error: '关联的项目或用户不存在',
                 message: errorMessage,
                 details: errorDetails,
                 hint: '请确保项目和用户已创建'
             })
         }
-        
-        res.status(500).json({ 
+
+        res.status(500).json({
             error: errorMessage,
             message: errorMessage,
             code: error.code,
@@ -1016,7 +1018,7 @@ app.put('/api/collaborate/annotations/:id', async (req, res) => {
         if (prisma) {
             const { id } = req.params
             const { content, type, partId, position } = req.body
-            
+
             const updateData = {}
             if (content !== undefined) updateData.content = content
             if (type !== undefined) updateData.type = type
@@ -1026,7 +1028,7 @@ app.put('/api/collaborate/annotations/:id', async (req, res) => {
                 updateData.positionY = position.y || 0
                 updateData.positionZ = position.z || 0
             }
-            
+
             const annotation = await prisma.annotation.update({
                 where: { id },
                 data: updateData,
@@ -1036,7 +1038,7 @@ app.put('/api/collaborate/annotations/:id', async (req, res) => {
                     }
                 }
             })
-            
+
             const result = {
                 id: annotation.id,
                 projectId: annotation.projectId,
@@ -1050,7 +1052,7 @@ app.put('/api/collaborate/annotations/:id', async (req, res) => {
                 updatedAt: annotation.updatedAt.toISOString(),
                 resolved: annotation.resolved
             }
-            
+
             io.to(annotation.projectId).emit('annotation-updated', result)
             return res.json(result)
         } else {
@@ -1077,15 +1079,15 @@ app.delete('/api/collaborate/annotations/:id', async (req, res) => {
                 where: { id: req.params.id },
                 select: { id: true, projectId: true }
             })
-            
+
             if (!annotation) {
                 return res.status(404).json({ error: '标注不存在' })
             }
-            
+
             await prisma.annotation.delete({
                 where: { id: req.params.id }
             })
-            
+
             io.to(annotation.projectId).emit('annotation-deleted', annotation.id)
             return res.json({ success: true, id: annotation.id })
         } else {
@@ -1109,7 +1111,7 @@ app.post('/api/collaborate/annotations/:id/resolve', async (req, res) => {
     try {
         const { id } = req.params
         const { userId } = req.body
-        
+
         if (prisma) {
             const annotation = await prisma.annotation.update({
                 where: { id },
@@ -1124,7 +1126,7 @@ app.post('/api/collaborate/annotations/:id/resolve', async (req, res) => {
                     }
                 }
             })
-            
+
             const result = {
                 id: annotation.id,
                 projectId: annotation.projectId,
@@ -1139,7 +1141,7 @@ app.post('/api/collaborate/annotations/:id/resolve', async (req, res) => {
                 resolvedAt: annotation.resolvedAt?.toISOString(),
                 resolvedBy: annotation.resolvedBy
             }
-            
+
             io.to(annotation.projectId).emit('annotation-updated', result)
             return res.json(result)
         } else {
@@ -1236,11 +1238,11 @@ app.post('/api/collaborate/gjb/check', (req, res) => {
     })
     gjbCheckResults = gjbCheckResults.filter(r => r.projectId !== projectId)
     gjbCheckResults.push(...newResults)
-    
+
     const passed = newResults.filter(r => r.status === 'passed').length
     const warning = newResults.filter(r => r.status === 'warning').length
     const failed = newResults.filter(r => r.status === 'failed').length
-    
+
     res.json({
         projectId,
         totalChecks: newResults.length,
@@ -1326,11 +1328,11 @@ app.post('/api/ai/analyze-design', authenticateToken, async (req, res) => {
 
     try {
         const result = await analyzeEquipmentDesign(prompt)
-        
+
         if (prisma) {
             // 获取用户ID，确保用户存在
             let userId = req.user?.userId
-            
+
             // 如果用户ID不存在，尝试使用admin用户或创建系统用户
             if (!userId) {
                 const adminUser = await prisma.user.findFirst({ where: { role: 'SUPER_ADMIN' } })
@@ -1387,9 +1389,9 @@ app.post('/api/ai/analyze-design', authenticateToken, async (req, res) => {
                     }
                 }
             }
-            
+
             console.log('💾 保存AI设计，用户ID:', userId)
-            
+
             // 保存到数据库
             const design = await prisma.aIDesign.create({
                 data: {
@@ -1405,9 +1407,9 @@ app.post('/api/ai/analyze-design', authenticateToken, async (req, res) => {
                     analysis: result.analysis ? JSON.stringify(result.analysis) : null
                 }
             })
-            
+
             console.log('✅ AI设计保存成功:', design.id)
-            
+
             res.json({
                 success: true,
                 data: result,
@@ -1430,10 +1432,10 @@ app.post('/api/ai/analyze-design', authenticateToken, async (req, res) => {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             }
-            
+
             aiDesigns.unshift(design) // 添加到开头
             saveDesigns() // 持久化到文件
-            
+
             res.json({
                 success: true,
                 data: result,
@@ -1447,10 +1449,10 @@ app.post('/api/ai/analyze-design', authenticateToken, async (req, res) => {
             message: error.message,
             meta: error.meta
         })
-        
+
         const errorMessage = error.message || 'AI分析失败，请检查AI服务配置'
         const errorDetails = process.env.NODE_ENV === 'development' ? error.stack : undefined
-        
+
         // 如果是数据库相关错误，提供更详细的错误信息
         if (error.code === 'P2003') {
             return res.status(400).json({
@@ -1460,7 +1462,7 @@ app.post('/api/ai/analyze-design', authenticateToken, async (req, res) => {
                 hint: '请确保用户已创建'
             })
         }
-        
+
         res.status(500).json({
             error: errorMessage,
             message: errorMessage,
@@ -1474,7 +1476,7 @@ app.post('/api/ai/analyze-design', authenticateToken, async (req, res) => {
 app.get('/api/ai/designs', authenticateToken, async (req, res) => {
     try {
         let userId = req.user?.userId
-        
+
         if (prisma) {
             // 验证用户是否存在，如果不存在则使用实际存在的用户
             if (userId) {
@@ -1499,11 +1501,11 @@ app.get('/api/ai/designs', authenticateToken, async (req, res) => {
                     console.log('✅ 使用认证用户查询:', existingUser.name, existingUser.id)
                 }
             }
-            
+
             // 如果还是没有用户ID，查询所有设计方案（或者返回空）
             // 注意：如果认证用户不存在，可能保存时用了system用户，所以也要查询system用户的设计
             let whereClause = userId ? { userId } : {}
-            
+
             // 如果用户不存在，尝试查询system用户的设计（因为保存时可能用了system）
             if (!userId || !await prisma.user.findUnique({ where: { id: userId } })) {
                 const systemUser = await prisma.user.findFirst({ where: { id: 'system' } })
@@ -1518,14 +1520,14 @@ app.get('/api/ai/designs', authenticateToken, async (req, res) => {
             } else {
                 console.log('🔍 查询用户的设计方案:', userId)
             }
-            
+
             const designs = await prisma.aIDesign.findMany({
                 where: whereClause,
                 orderBy: { createdAt: 'desc' }
             })
-            
+
             console.log('📊 查询到设计方案:', designs.length, '个')
-            
+
             const result = designs.map(d => ({
                 id: d.id,
                 userId: d.userId,
@@ -1541,7 +1543,7 @@ app.get('/api/ai/designs', authenticateToken, async (req, res) => {
                 createdAt: d.createdAt.toISOString(),
                 updatedAt: d.updatedAt.toISOString()
             }))
-            
+
             console.log('📤 返回设计方案列表:', result.length, '个')
             console.log('📤 返回的数据示例:', result.length > 0 ? JSON.stringify(result[0], null, 2) : '无数据')
             return res.json({
@@ -1569,7 +1571,7 @@ app.get('/api/ai/designs/:id', authenticateToken, async (req, res) => {
     try {
         let userId = req.user?.userId
         const { id } = req.params
-        
+
         if (prisma) {
             // 验证用户是否存在，如果不存在则使用实际存在的用户
             if (userId) {
@@ -1584,17 +1586,17 @@ app.get('/api/ai/designs/:id', authenticateToken, async (req, res) => {
                     }
                 }
             }
-            
+
             // 如果用户不存在，查询时不限制userId（因为可能保存时用了system）
             const whereClause = userId ? { id, userId } : { id }
             const design = await prisma.aIDesign.findFirst({
                 where: whereClause
             })
-            
+
             if (!design) {
                 return res.status(404).json({ error: '设计方案不存在' })
             }
-            
+
             return res.json({
                 success: true,
                 data: {
@@ -1638,26 +1640,26 @@ app.get('/api/ai/designs/:id', authenticateToken, async (req, res) => {
 app.delete('/api/ai/designs/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params
-        
+
         console.log('🗑️  删除设计方案请求:', { id, userId: req.user?.userId })
-        
+
         if (prisma) {
             // 直接按ID查找设计方案（不限制userId，因为保存时可能用了不同用户）
             const design = await prisma.aIDesign.findUnique({
                 where: { id }
             })
-            
+
             if (!design) {
                 console.error('❌ 删除：设计方案不存在:', id)
                 return res.status(404).json({ error: '设计方案不存在' })
             }
-            
+
             console.log('✅ 删除：找到设计方案:', design.id, design.name)
-            
+
             await prisma.aIDesign.delete({
                 where: { id }
             })
-            
+
             console.log('✅ 删除：设计方案已删除')
             return res.json({ success: true })
         } else {
@@ -1707,7 +1709,7 @@ if (nodemailer) {
             pass: process.env.SMTP_PASS || '' // QQ邮箱授权码
         }
     }
-    
+
     if (emailConfig.auth.user && emailConfig.auth.pass) {
         try {
             mailTransporter = nodemailer.createTransport(emailConfig)
@@ -1741,7 +1743,7 @@ async function sendFeedbackEmail(description, userEmail) {
             </p>
         </div>
     `
-    
+
     if (mailTransporter && emailConfig) {
         try {
             await mailTransporter.sendMail({
@@ -1775,24 +1777,24 @@ async function sendFeedbackEmail(description, userEmail) {
 app.post('/api/support/feedback', async (req, res) => {
     try {
         const { description, email } = req.body
-        
+
         if (!description || !description.trim()) {
             return res.status(400).json({ error: '问题描述不能为空' })
         }
-        
+
         if (!email || !email.trim()) {
             return res.status(400).json({ error: '联系邮箱不能为空' })
         }
-        
+
         // 简单的邮箱格式验证
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!emailRegex.test(email)) {
             return res.status(400).json({ error: '邮箱格式不正确' })
         }
-        
+
         // 发送邮件
         const emailSent = await sendFeedbackEmail(description.trim(), email.trim())
-        
+
         // 保存反馈到数据库（如果使用Prisma）
         if (prisma) {
             try {
@@ -1802,7 +1804,7 @@ app.post('/api/support/feedback', async (req, res) => {
                 console.error('保存反馈到数据库失败:', error)
             }
         }
-        
+
         res.json({
             success: true,
             message: emailSent ? '问题反馈已提交，我们会尽快处理' : '问题反馈已提交（邮件发送失败，但已记录）'
@@ -1818,16 +1820,16 @@ app.post('/api/support/feedback', async (req, res) => {
 // ==========================================
 io.on('connection', (socket) => {
     console.log('🔗 用户连接:', socket.id)
-    
+
     socket.on('join-project', (data) => {
         socket.join(data.projectId)
         console.log(`👤 用户加入项目 ${data.projectId}`)
     })
-    
+
     socket.on('leave-project', (data) => {
         socket.leave(data.projectId)
     })
-    
+
     socket.on('disconnect', () => {
         console.log('❌ 用户断开:', socket.id)
     })
