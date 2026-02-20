@@ -1836,7 +1836,9 @@ io.on('connection', (socket) => {
 // ==========================================
 // 启动服务
 // ==========================================
-const PORT = process.env.PORT || 3001
+// 确保端口是有效的数字，过滤掉类似 ${WEB_PORT} 的错误占位符
+const rawPort = process.env.PORT || '3001'
+const PORT = (isNaN(rawPort) || rawPort.includes('${')) ? 3001 : parseInt(rawPort)
 
 httpServer.listen(PORT, '0.0.0.0', () => {
     console.log('')
