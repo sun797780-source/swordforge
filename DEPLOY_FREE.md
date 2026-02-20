@@ -330,7 +330,7 @@ cp prisma/swordforge.db prisma/swordforge.db.backup
 - [快速开始指南](./QUICK_START.md)
 - [详细部署文档](./DEPLOY.md)
 
----
+---------
 
 **需要帮助？** 查看 Railway 文档或提交 Issue！
 
