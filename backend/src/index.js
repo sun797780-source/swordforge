@@ -49,12 +49,15 @@ const io = new Server(httpServer, {
     }
 })
 
-// 配置CORS - 允许所有来源以确保部署成功
+// 配置CORS - 动态反射来源以确保 100% 连通性
 app.use(cors({
-    origin: true, // 允许所有来源
+    origin: function (origin, callback) {
+        // 允许所有来源请求，这对部署调试最稳妥
+        callback(null, true)
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }))
 app.use(express.json())
 
