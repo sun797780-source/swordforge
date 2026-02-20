@@ -1841,20 +1841,13 @@ io.on('connection', (socket) => {
 // ==========================================
 // 启动服务
 // ==========================================
-// 确保端口是有效的数字，过滤掉类似 ${WEB_PORT} 的错误占位符
-const rawPort = process.env.PORT || '3001'
-const PORT = (isNaN(rawPort) || rawPort.includes('${')) ? 3001 : parseInt(rawPort)
+// 强制使用 Zeabur 默认的 8080 端口，不再使用复杂的探测逻辑
+const PORT = 8080
 
 httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log('')
-    console.log('==========================================')
-    console.log('   铸剑乾坤 - 后端服务已启动')
-    console.log('==========================================')
-    console.log(`   API 地址: http://0.0.0.0:${PORT}`)
-    console.log(`   端口: ${PORT}`)
-    console.log(`   管理员: ${config.admin.username} / ${config.admin.password}`)
-    console.log('==========================================')
-    console.log('')
+    console.log('🚀 后端服务已启动')
+    console.log(`🌐 监听端口: ${PORT}`)
+    console.log(`🔑 管理员: ${config.admin.username} / ${config.admin.password}`)
 })
 
 // 添加错误处理
