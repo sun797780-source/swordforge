@@ -2,7 +2,7 @@
 // 使用 SQLite 数据库
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
