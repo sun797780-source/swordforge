@@ -88,7 +88,7 @@ export const aiApi = {
                     stats = { speed: 0, armor: 0, firepower: 0, stealth: 0 }
                 }
             }
-            
+
             // 确保其他字段也是对象
             let designSuggestions = d.designSuggestions
             if (typeof designSuggestions === 'string' && designSuggestions) {
@@ -98,7 +98,7 @@ export const aiApi = {
                     designSuggestions = null
                 }
             }
-            
+
             let technicalSpecs = d.technicalSpecs
             if (typeof technicalSpecs === 'string' && technicalSpecs) {
                 try {
@@ -107,7 +107,7 @@ export const aiApi = {
                     technicalSpecs = null
                 }
             }
-            
+
             let analysis = d.analysis
             if (typeof analysis === 'string' && analysis) {
                 try {
@@ -116,7 +116,7 @@ export const aiApi = {
                     analysis = null
                 }
             }
-            
+
             return {
                 id: d.id,
                 name: d.name || '未命名方案',
@@ -134,7 +134,7 @@ export const aiApi = {
                 }
             }
         })
-        
+
         console.log('📋 映射后的设计方案:', mapped.length, '个')
         return mapped
     },
