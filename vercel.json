@@ -1,14 +1,17 @@
 {
   "version": 2,
   "name": "swordforge",
-  "buildCommand": "cd frontend && npm install && npx tsc --noEmit || true && npx vite build",
+  "framework": "vite",
+  "buildCommand": "npm run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "cd frontend && npm install",
-  "framework": null,
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/serverless"
+      "destination": "/api/serverless.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "functions": {
@@ -16,8 +19,5 @@
       "memory": 1024,
       "maxDuration": 30
     }
-  },
-  "env": {
-    "NODE_ENV": "production"
   }
 }

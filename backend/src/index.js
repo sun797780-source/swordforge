@@ -172,12 +172,17 @@ let ideas = []
 let simulations = []
 
 // AI设计方案数据存储
-const DESIGNS_FILE = path.join(__dirname, '../data/ai-designs.json')
+const isVercel = process.env.VERCEL === '1'
+const dataDir = isVercel ? '/tmp/swordforge-data' : path.join(__dirname, '../data')
+const DESIGNS_FILE = path.join(dataDir, 'ai-designs.json')
 
 // 确保数据目录存在
-const dataDir = path.dirname(DESIGNS_FILE)
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true })
+try {
+    if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true })
+    }
+} catch (e) {
+    console.warn('⚠️  创建数据目录失败，可能是只读文件系统:', e.message)
 }
 
 // 加载保存的设计方案
