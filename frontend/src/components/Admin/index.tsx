@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { message, Modal, Form, Input, Select, Table, Tag, Space, Button } from 'antd'
 import { EyeOutlined, EyeInvisibleOutlined, UserOutlined, LockOutlined, PlusOutlined, KeyOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons'
 import { authApi, adminApi, AuthUser } from '../../services/authApi'
+import { useAuth } from '../../contexts/AuthContext'
 import './Admin.css'
 
 const { Option } = Select
 
 const Admin: React.FC = () => {
-    const [token, setToken] = useState<string | null>(localStorage.getItem('admin_token'))
-    const [user, setUser] = useState<AuthUser | null>(null)
+    const { token, user, setToken, setUser, login: contextLogin, logout: contextLogout } = useAuth()
     const [loading, setLoading] = useState(false)
     const [loginLoading, setLoginLoading] = useState(false)
     const [users, setUsers] = useState<any[]>([])
@@ -61,10 +61,7 @@ const Admin: React.FC = () => {
         setLoginLoading(true)
         setLoginError('')
         try {
-            const res = await authApi.login(loginForm.username, loginForm.password)
-            localStorage.setItem('admin_token', res.token)
-            setToken(res.token)
-            setUser(res.user)
+            await contextLogin(loginForm.username, loginForm.password)
             message.success('登录成功')
         } catch (e: any) {
             setLoginError(e.message || '登录失败，请检查用户名和密码')
@@ -74,15 +71,7 @@ const Admin: React.FC = () => {
     }
 
     const handleLogout = async () => {
-        if (!token) return
-        try {
-            await authApi.logout(token)
-        } catch {
-            // ignore
-        }
-        localStorage.removeItem('admin_token')
-        setToken(null)
-        setUser(null)
+        await contextLogout()
         setUsers([])
     }
 
@@ -121,17 +110,6 @@ const Admin: React.FC = () => {
             message.error('更新失败')
         }
     }
-
-    useEffect(() => {
-        if (!token) return
-        authApi.me(token)
-            .then(setUser)
-            .catch(() => {
-                localStorage.removeItem('admin_token')
-                setToken(null)
-                setUser(null)
-            })
-    }, [token])
 
     useEffect(() => {
         if (token && canManage) {
