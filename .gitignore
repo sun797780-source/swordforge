@@ -42,3 +42,6 @@ uploads/
 # Docker
 .dockerignore
 
+# Vercel
+.vercel
+
