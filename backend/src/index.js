@@ -1,3 +1,4 @@
+const config = require('./config')
 // 启动调试
 console.log('=== 铸剑乾坤后端启动 ===')
 console.log('NODE_ENV:', process.env.NODE_ENV)
@@ -10,7 +11,6 @@ const { createServer } = require('http')
 const { Server } = require('socket.io')
 const fs = require('fs')
 const path = require('path')
-const config = require('./config')
 const { analyzeEquipmentDesign } = require('./aiService')
 
 // 初始化Prisma客户端 - 延迟初始化，不阻塞启动
@@ -1841,20 +1841,29 @@ io.on('connection', (socket) => {
 // ==========================================
 // 启动服务
 // ==========================================
-// 强制使用 Zeabur 默认的 8080 端口，不再使用复杂的探测逻辑
-const PORT = 8080
+// 优先从环境变量读取端口，如果没有则使用默认端口（开发环境通常由 .env 提供 3001）
+// 这样可以同时兼容本地开发和 Zeabur (8080) 部署
+const PORT = process.env.PORT || 8080
 
-httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log('🚀 后端服务已启动')
-    console.log(`🌐 监听端口: ${PORT}`)
-    console.log(`🔑 管理员: ${config.admin.username} / ${config.admin.password}`)
-})
+// Vercel 环境下不需要调用 listen，由平台接管应用生命周期
+if (!process.env.VERCEL) {
+    httpServer.listen(PORT, '0.0.0.0', () => {
+        console.log('🚀 后端服务已启动')
+        console.log(`🌐 监听端口: ${PORT}`)
+        console.log(`🔑 管理员: ${config.admin.username} / ${config.admin.password}`)
+    })
+}
+
+// 导出 app 以供 Vercel Serverless Function 使用
+module.exports = app
 
 // 添加错误处理
-httpServer.on('error', (err) => {
-    console.error('❌ 服务器启动失败:', err)
-    process.exit(1)
-})
+if (!process.env.VERCEL) {
+    httpServer.on('error', (err) => {
+        console.error('❌ 服务器启动失败:', err)
+        process.exit(1)
+    })
+}
 
 process.on('uncaughtException', (err) => {
     console.error('❌ 未捕获的异常:', err)
