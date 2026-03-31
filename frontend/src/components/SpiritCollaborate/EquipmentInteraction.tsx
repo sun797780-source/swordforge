@@ -3325,11 +3325,11 @@ const EquipmentInteraction: React.FC = () => {
                     right: 0,
                     bottom: 0,
                     background: 'linear-gradient(135deg, #0f1419 0%, #1a2634 50%, #0f1419 100%)',
-                    zIndex: 1000,
+                    zIndex: 10,
                     display: 'flex',
-                    alignItems: 'center',
+                    alignItems: 'flex-start',
                     justifyContent: 'center',
-                    padding: '40px',
+                    padding: '120px 40px 40px',
                     overflow: 'auto'
                 }}>
                     <div style={{
